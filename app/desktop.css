@@ -1,0 +1,1681 @@
+/* ============================================================================
+ *  desktop.css — window chrome, widgets, and the interior of every app
+ * ==========================================================================*/
+
+/* ==========================================================================
+ *  WINDOW CHROME
+ * ======================================================================== */
+
+.window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  backdrop-filter: blur(34px) saturate(180%);
+  -webkit-backdrop-filter: blur(34px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-win-idle);
+  overflow: hidden;
+  animation: winOpen 260ms var(--ease-out);
+  will-change: transform;
+}
+
+.window.is-active {
+  box-shadow: var(--shadow-win);
+}
+
+.window.is-minimized {
+  animation: winMin 220ms var(--ease) forwards;
+  pointer-events: none;
+  /* pointer-events stops the mouse but not the Tab key, so the window is also
+     made invisible — delayed by the length of the animation so the shrink is
+     still seen. (A discrete property inside the keyframes would flip at 50%.) */
+  visibility: hidden;
+  transition: visibility 0s 220ms;
+}
+
+@keyframes winOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes winMin {
+  to {
+    opacity: 0;
+    transform: scale(0.7) translateY(160px);
+  }
+}
+
+.titlebar {
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--surface-2);
+  cursor: default;
+  user-select: none;
+  touch-action: none;
+}
+
+.titlebar.is-tall {
+  height: 46px;
+}
+
+.traffic {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.tl {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 0.5px solid rgba(0, 0, 0, 0.14);
+  transition: filter 120ms var(--ease);
+}
+
+.tl svg {
+  opacity: 0;
+  color: rgba(0, 0, 0, 0.55);
+  transition: opacity 120ms var(--ease);
+}
+
+.traffic:hover .tl svg {
+  opacity: 1;
+}
+
+.tl:active {
+  filter: brightness(0.85);
+}
+
+.tl-close {
+  background: var(--tl-red);
+}
+.tl-min {
+  background: var(--tl-amber);
+}
+.tl-max {
+  background: var(--tl-green);
+}
+
+.window:not(.is-active) .tl {
+  background: var(--surface-3);
+  border-color: transparent;
+}
+
+.window-title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.window:not(.is-active) .window-title {
+  color: var(--text-3);
+}
+
+.titlebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  min-width: 56px;
+  justify-content: flex-end;
+}
+
+.tb-btn {
+  width: 26px;
+  height: 24px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+  transition: background 120ms var(--ease), color 120ms var(--ease);
+}
+
+.tb-btn:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.tb-btn.is-on {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.window-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  touch-action: none;
+  z-index: 3;
+}
+
+.resize-handle::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--text-3);
+  border-bottom: 2px solid var(--text-3);
+  border-bottom-right-radius: 3px;
+  opacity: 0.42;
+}
+
+/* Edge grips sit just inside the window box, because .window clips overflow.
+   They are kept to 3px: the pane's scrollbar is 9px and shares this edge, and
+   a wider grip would start a resize when the user meant to drag the thumb. */
+.resize-edge-r,
+.resize-edge-b {
+  position: absolute;
+  touch-action: none;
+  z-index: 2;
+}
+.resize-edge-r {
+  top: 44px;
+  bottom: 18px;
+  right: 0;
+  width: 3px;
+  cursor: ew-resize;
+}
+.resize-edge-b {
+  left: 8px;
+  right: 18px;
+  bottom: 0;
+  height: 3px;
+  cursor: ns-resize;
+}
+
+body.is-dragging {
+  cursor: grabbing;
+}
+body.is-dragging * {
+  user-select: none !important;
+  pointer-events: none !important;
+}
+body.is-resizing * {
+  user-select: none !important;
+}
+
+/* ==========================================================================
+ *  SHARED APP INTERIOR PATTERNS
+ * ======================================================================== */
+
+.pane {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pane-scroll {
+  flex: 1;
+  min-height: 0;
+  padding: 22px 26px 28px;
+  /* Owns its own scrolling rather than depending on the .scroll-area class
+     being applied alongside it. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+.sidebar {
+  width: 208px;
+  flex-shrink: 0;
+  padding: 10px 8px;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border-soft);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Journal entries carry a preview line, so that list gets a little more room. */
+.sidebar.is-wide {
+  width: 232px;
+}
+
+.sidebar-heading {
+  padding: 10px 10px 5px;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.sidebar-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  color: var(--text);
+  transition: background 110ms var(--ease);
+}
+
+.sidebar-row:hover {
+  background: var(--surface-2);
+}
+
+.sidebar-row.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.sidebar-row.is-active .sidebar-sub {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.sidebar-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+/* A flex column, not a plain block: the children are <span>s, and inline
+   children would sit on one line and ignore text-overflow. */
+.sidebar-text {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-sub {
+  font-size: 11px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* section headings inside app content */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.h-lg {
+  font-size: 27px;
+  font-weight: 680;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.h-md {
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.012em;
+}
+
+.h-sm {
+  font-size: 13.5px;
+  font-weight: 650;
+}
+
+.prose p {
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.68;
+}
+
+.prose p + p {
+  margin-top: 13px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-soft);
+  margin: 22px 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 550;
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  white-space: nowrap;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 15px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 550;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: all 130ms var(--ease);
+}
+
+.btn:hover {
+  background: var(--surface-3);
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--accent);
+  filter: brightness(1.08);
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+/* ==========================================================================
+ *  WIDGETS
+ * ======================================================================== */
+
+.widget-stack {
+  position: absolute;
+  top: calc(var(--menubar-h) + 14px);
+  right: 16px;
+  width: 244px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 20;
+  /* The column itself is only a layout device — the gaps between widgets must
+     not swallow clicks meant for the desktop or a window underneath. */
+  pointer-events: none;
+}
+
+.widget {
+  pointer-events: auto;
+  border-radius: 18px;
+  padding: 14px;
+  background: var(--widget-bg);
+  backdrop-filter: blur(26px) saturate(180%);
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+  border: 1px solid var(--widget-border);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
+  color: var(--text);
+}
+
+.widget-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+
+/* --- analog clock ------------------------------------------------------- */
+.clock-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+}
+
+.clock-face {
+  display: block;
+}
+
+.clock-caption {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-zone {
+  font-size: 10.5px;
+  color: var(--text-3);
+}
+
+/* --- weather ------------------------------------------------------------ */
+.weather-widget {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.28);
+  background: linear-gradient(155deg, #ffb457, #f0783c 55%, #e0603f);
+}
+
+:root[data-theme="dark"] .weather-widget {
+  background: linear-gradient(155deg, #2c4a80, #1d2f57 55%, #16203c);
+}
+
+.weather-widget .widget-head {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.weather-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.weather-temp {
+  font-size: 42px;
+  font-weight: 350;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.weather-sun {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 32%, #fff6c8, #ffd25e 60%, #f6b93b);
+  box-shadow: 0 0 24px rgba(255, 214, 110, 0.75);
+  flex-shrink: 0;
+}
+
+:root[data-theme="dark"] .weather-sun {
+  background: radial-gradient(circle at 38% 34%, #f6f8ff, #d8def0 58%, #aab3cc);
+  box-shadow: 0 0 22px rgba(200, 214, 255, 0.5);
+}
+
+.weather-cond {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.weather-range {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.82);
+  font-variant-numeric: tabular-nums;
+}
+
+.weather-meta {
+  display: flex;
+  gap: 14px;
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* --- calendar ----------------------------------------------------------- */
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cal-month {
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--accent);
+}
+
+.cal-nav {
+  display: flex;
+  gap: 2px;
+}
+
+.cal-nav button {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  color: var(--text-3);
+  transition: all 120ms var(--ease);
+}
+
+.cal-nav button:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.cal-flip {
+  transform: rotate(180deg);
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.cal-dow {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 650;
+  color: var(--text-3);
+  padding-bottom: 3px;
+}
+
+.cal-cell {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  font-size: 11.5px;
+  color: var(--text-2);
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-cell.is-muted {
+  color: var(--text-3);
+  opacity: 0.42;
+}
+
+.cal-cell.is-today {
+  background: #e8453c;
+  color: #fff;
+  font-weight: 650;
+}
+
+/* --- music -------------------------------------------------------------- */
+.music-widget {
+  padding: 14px;
+}
+
+.music-head {
+  color: #1db954;
+}
+
+.music-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.music-art {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: linear-gradient(145deg, #7b8ea8, #3f4b60);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.music-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.music-title {
+  font-size: 13px;
+  font-weight: 620;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.music-artist {
+  font-size: 11.5px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.music-progress {
+  margin-top: 11px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.music-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--text-2);
+  transition: width 400ms linear;
+}
+
+.music-times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  font-size: 10px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.music-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 8px;
+  color: var(--text-2);
+}
+
+.music-controls button {
+  display: grid;
+  place-items: center;
+  transition: all 130ms var(--ease);
+}
+
+.music-controls button:hover {
+  color: var(--text);
+  transform: scale(1.12);
+}
+
+.music-play {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  color: var(--text) !important;
+}
+
+@media (max-width: 1080px) {
+  .widget-stack {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+ *  ABOUT APP
+ * ======================================================================== */
+
+.about-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.avatar-lg {
+  width: 74px;
+  height: 74px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  color: #fff;
+  background: linear-gradient(150deg, #6aa8ff, #3b6fe0);
+  box-shadow: 0 6px 18px rgba(59, 111, 224, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.about-role {
+  color: var(--text-2);
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #0f8a5f;
+  background: rgba(31, 190, 133, 0.14);
+  border: 1px solid rgba(31, 190, 133, 0.3);
+}
+
+:root[data-theme="dark"] .status-pill {
+  color: #4ee0ac;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.fact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 10px;
+}
+
+.fact {
+  padding: 11px 13px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+}
+
+.fact-label {
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.fact-value {
+  font-size: 14.5px;
+  font-weight: 620;
+  margin-top: 3px;
+}
+
+.marker-list li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--text-2);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.marker-list li + li {
+  margin-top: 8px;
+}
+
+.marker-list li::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ==========================================================================
+ *  PROJECTS APP
+ * ======================================================================== */
+
+.proj-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.proj-accent-bar {
+  height: 3px;
+  border-radius: 999px;
+  margin: 16px 0 20px;
+}
+
+.status-tag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+  border: 1px solid;
+}
+
+.status-shipped {
+  color: #0f8a5f;
+  background: rgba(31, 190, 133, 0.13);
+  border-color: rgba(31, 190, 133, 0.3);
+}
+.status-in-progress {
+  color: #b8730c;
+  background: rgba(240, 160, 40, 0.14);
+  border-color: rgba(240, 160, 40, 0.32);
+}
+.status-archived {
+  color: var(--text-3);
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+.status-experiment {
+  color: #7a4fd0;
+  background: rgba(150, 100, 240, 0.14);
+  border-color: rgba(150, 100, 240, 0.3);
+}
+
+:root[data-theme="dark"] .status-shipped {
+  color: #4ee0ac;
+}
+:root[data-theme="dark"] .status-in-progress {
+  color: #ffc266;
+}
+:root[data-theme="dark"] .status-experiment {
+  color: #b892ff;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 18px;
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 5px;
+}
+
+.meta-row strong {
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.hl-list li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+.hl-list li + li {
+  margin-top: 9px;
+}
+
+.hl-list li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--proj-accent, var(--accent));
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+ *  SKILLS APP
+ * ======================================================================== */
+
+.skill-group + .skill-group {
+  margin-top: 26px;
+}
+
+.skill-blurb {
+  font-size: 12.5px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.skill-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.skill-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+
+.skill-name {
+  font-size: 13px;
+  font-weight: 560;
+}
+
+.skill-pct {
+  font-size: 11px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.skill-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.skill-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #8a5cf0);
+  transform-origin: left center;
+  animation: skillGrow 900ms var(--ease-out) both;
+}
+
+@keyframes skillGrow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ==========================================================================
+ *  TERMINAL APP  (the signature element)
+ * ======================================================================== */
+
+.terminal {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0c0e13;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.62;
+  color: #d6dbe4;
+  cursor: text;
+}
+
+.terminal-scroll {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 16px 18px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2c3140 transparent;
+}
+
+.terminal-scroll::-webkit-scrollbar {
+  width: 9px;
+}
+.terminal-scroll::-webkit-scrollbar-thumb {
+  background: #2c3140;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.term-line {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.term-prompt-line {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.term-ps1 {
+  color: #57d6a0;
+  flex-shrink: 0;
+}
+
+.term-ps1 .term-path {
+  color: #58a6f0;
+}
+
+.term-cmd {
+  color: #f2f5fa;
+}
+
+.term-out {
+  color: #b6bdca;
+}
+
+.term-accent {
+  color: #6cb6ff;
+}
+.term-warn {
+  color: #f0c674;
+}
+.term-err {
+  color: #ff7b72;
+}
+.term-ok {
+  color: #57d6a0;
+}
+.term-dim {
+  color: #6e7683;
+}
+.term-bold {
+  color: #fff;
+  font-weight: 600;
+}
+
+.term-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.term-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.62;
+  color: #f2f5fa;
+  caret-color: #57d6a0;
+  padding: 0;
+}
+
+.term-table {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px 20px;
+}
+
+.term-logo {
+  color: #6cb6ff;
+  white-space: pre;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+/* ==========================================================================
+ *  CONTACT APP
+ * ======================================================================== */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field-label {
+  font-size: 11.5px;
+  font-weight: 620;
+  color: var(--text-2);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 8px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-solid);
+  font-size: 13.5px;
+  transition: border-color 130ms var(--ease), box-shadow 130ms var(--ease);
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.link-tile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  text-align: left;
+  transition: all 140ms var(--ease);
+}
+
+.link-tile:hover {
+  background: var(--surface-3);
+  transform: translateX(2px);
+  text-decoration: none;
+}
+
+.link-tile-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #fff;
+  background: linear-gradient(150deg, #7d8794, #4c5563);
+}
+
+.link-tile-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.link-tile-sub {
+  font-size: 11.5px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.copy-note {
+  font-size: 12px;
+  color: #0f8a5f;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+:root[data-theme="dark"] .copy-note {
+  color: #4ee0ac;
+}
+
+/* ==========================================================================
+ *  RESUME APP
+ * ======================================================================== */
+
+.resume-toolbar {
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--surface-2);
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.resume-stage {
+  flex: 1;
+  min-height: 0;
+  padding: 20px;
+  background: var(--surface-3);
+  overflow-y: auto;
+}
+
+.resume-sheet {
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 40px 44px 48px;
+  border-radius: 4px;
+  background: #fff;
+  color: #17191d;
+  box-shadow: 0 6px 26px rgba(0, 0, 0, 0.22);
+}
+
+:root[data-theme="dark"] .resume-sheet {
+  background: #f7f8fa;
+}
+
+.resume-name {
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.resume-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 7px;
+  font-size: 11.5px;
+  color: #5c626c;
+}
+
+.resume-rule {
+  height: 2px;
+  background: #17191d;
+  margin: 18px 0 20px;
+}
+
+.resume-section + .resume-section {
+  margin-top: 22px;
+}
+
+.resume-h {
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #17191d;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #d5d9e0;
+  margin-bottom: 11px;
+}
+
+.resume-job + .resume-job {
+  margin-top: 15px;
+}
+
+.resume-job-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.resume-job-role {
+  font-size: 13.5px;
+  font-weight: 680;
+}
+
+.resume-job-co {
+  font-size: 12.5px;
+  color: #40454e;
+}
+
+.resume-job-when {
+  font-size: 11px;
+  color: #6b717b;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.resume-bullets {
+  margin-top: 6px;
+}
+
+.resume-bullets li {
+  position: relative;
+  padding-left: 15px;
+  font-size: 12.5px;
+  line-height: 1.58;
+  color: #34383f;
+}
+
+.resume-bullets li + li {
+  margin-top: 4px;
+}
+
+.resume-bullets li::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #8b919b;
+}
+
+.resume-skill-line {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #34383f;
+}
+
+.resume-skill-line + .resume-skill-line {
+  margin-top: 5px;
+}
+
+.resume-skill-line strong {
+  color: #17191d;
+  font-weight: 680;
+}
+
+@media print {
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff;
+  }
+  /* The shell is a fixed, viewport-sized box that clips its overflow. Printing
+     has to escape it, or the sheet stops at the bottom of the screen. */
+  .shell {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  .menubar,
+  .dock-wrap,
+  .widget-stack,
+  .desktop-icons,
+  .titlebar,
+  .resume-toolbar,
+  .wallpaper,
+  .resize-handle,
+  .resize-edge-r,
+  .resize-edge-b {
+    display: none !important;
+  }
+  /* Print the résumé only, even when other windows happen to be open. Browsers
+     without :has() simply print everything, which is the old behaviour. */
+  .window:not(:has(.resume-stage)) {
+    display: none !important;
+  }
+  .window {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #fff !important;
+    animation: none !important;
+  }
+  /* Unclip every scroll container on the way down to the sheet. */
+  .window-body,
+  .pane,
+  .pane-scroll,
+  .resume-stage {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  .resume-stage {
+    padding: 0;
+    background: #fff;
+  }
+  .resume-sheet {
+    box-shadow: none;
+    max-width: none;
+    padding: 0;
+  }
+}
+
+/* ==========================================================================
+ *  JOURNAL / NOTES APP
+ * ======================================================================== */
+
+.note-row {
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 8px;
+  text-align: left;
+  transition: background 110ms var(--ease);
+}
+
+.note-row:hover {
+  background: var(--surface-2);
+}
+
+.note-row.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.note-row-title {
+  font-size: 13px;
+  font-weight: 620;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.note-row-date {
+  font-size: 10.5px;
+  color: var(--text-3);
+  margin-top: 1px;
+}
+
+.note-row-preview {
+  font-size: 11.5px;
+  color: var(--text-3);
+  margin-top: 3px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.45;
+}
+
+.note-row.is-active .note-row-date,
+.note-row.is-active .note-row-preview {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.note-body {
+  max-width: 62ch;
+}
+
+.note-title {
+  font-size: 23px;
+  font-weight: 690;
+  letter-spacing: -0.024em;
+  line-height: 1.2;
+}
+
+.note-date {
+  font-size: 11.5px;
+  color: var(--text-3);
+  margin-top: 5px;
+}
+
+/* ==========================================================================
+ *  SETTINGS APP
+ * ======================================================================== */
+
+.set-section + .set-section {
+  margin-top: 24px;
+}
+
+.wall-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.wall-card {
+  /* A <button> is inline-block by default, which would leave the empty
+     swatch <span> with no box at all — aspect-ratio is ignored on an
+     inline non-replaced element. */
+  display: block;
+  width: 100%;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: none;
+  transition: transform 160ms var(--ease-out);
+}
+
+.wall-card:hover {
+  transform: translateY(-2px);
+}
+
+.wall-card.is-active {
+  border-color: var(--accent);
+}
+
+.wall-swatch {
+  display: block;
+  aspect-ratio: 16 / 10;
+  border-radius: 7px;
+  background-size: cover;
+  box-shadow: inset 0 0 0 1px var(--border-soft);
+}
+
+.wall-name {
+  display: block;
+  padding: 6px 2px 2px;
+  font-size: 12px;
+  font-weight: 550;
+  text-align: center;
+}
+
+.seg {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 9px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-soft);
+}
+
+.seg button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 560;
+  color: var(--text-2);
+  transition: all 150ms var(--ease);
+}
+
+.seg button.is-on {
+  background: var(--surface-solid);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.set-row + .set-row {
+  border-top: 1px solid var(--border-soft);
+}
+
+.set-row-text {
+  min-width: 0;
+}
+
+.set-row-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.kbd {
+  display: inline-block;
+  min-width: 20px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-2);
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px 22px;
+  margin-top: 12px;
+}
+
+.shortcut-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  padding: 5px 0;
+}
+
+.shortcut-keys {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+ *  SMALL SCREENS
+ * ======================================================================== */
+
+@media (max-width: 620px) {
+  .sidebar,
+  .sidebar.is-wide {
+    width: 150px;
+  }
+  .pane-scroll {
+    padding: 16px 18px 22px;
+  }
+  .h-lg {
+    font-size: 22px;
+  }
+  .resume-sheet {
+    padding: 24px 22px 30px;
+  }
+}

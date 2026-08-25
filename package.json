@@ -1,0 +1,23 @@
+{
+  "name": "desktop-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An interactive macOS-style desktop portfolio built with Next.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^16.3.2",
+    "pnpm": "^11.23.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/react": "19.0.2",
+    "@types/react-dom": "19.0.2",
+    "typescript": "5.7.2"
+  }
+}
