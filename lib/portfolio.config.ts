@@ -57,7 +57,7 @@ export const profile = {
   location: "Bhubaneswar, Odisha, India",
   timezone: "IST (UTC+5:30)",
   available: true,
-  availabilityNote: "Open to senior frontend / product engineering roles",
+  availabilityNote: "Open to frontend / product engineering roles",
   email: "the.satyabehera@gmail.com",
   tagline: "I build software that feels like a place, not a form.",
   bio: [
@@ -66,10 +66,10 @@ export const profile = {
     "Outside of work I restore mechanical keyboards, cook a lot of South Indian food badly, and maintain a couple of open-source tools that a surprising number of people depend on.",
   ],
   facts: [
-    { label: "Experience", value: "7 years" },
+    { label: "Experience", value: "Fresher" },
     { label: "Based in", value: "Bhubaneswar" },
     { label: "Focus", value: "Frontend architecture" },
-    { label: "Open to", value: "Full-time & advisory" },
+    { label: "Open to", value: "Full-time & Internship" },
   ],
   currently: [
     "Building a collaborative canvas with CRDTs and a lot of opinions about cursors",
@@ -81,8 +81,8 @@ export const profile = {
 /* ---------------------------------------------------------------- social --- */
 
 export const socials: (Link & { icon: "github" | "linkedin" | "mail" | "x" | "globe" })[] = [
-  { label: "GitHub", href: "https://github.com", icon: "github" },
-  { label: "LinkedIn", href: "https://linkedin.com", icon: "linkedin" },
+  { label: "GitHub", href: "https://github.com/Satya-geek7", icon: "github" },
+  { label: "LinkedIn", href: "https://linkedin.com/in/satyaprbehera", icon: "linkedin" },
   { label: "Email", href: "mailto:the.satyabehera@gmail.com", icon: "mail" },
   { label: "Website", href: "https://example.com", icon: "globe" },
 ];
@@ -108,7 +108,7 @@ export const projects: Project[] = [
       "Presence system with interpolated remote cursors at 30Hz",
     ],
     links: [
-      { label: "Source", href: "https://github.com" },
+      { label: "Source", href: "https://github.com/Satya-geek7" },
       { label: "Live demo", href: "https://example.com" },
     ],
   },
@@ -199,21 +199,19 @@ export const skillGroups: SkillGroup[] = [
     name: "Languages",
     blurb: "What I reach for, roughly in order of comfort.",
     skills: [
-      { name: "TypeScript", level: 95 },
-      { name: "JavaScript", level: 93 },
-      { name: "SQL", level: 82 },
-      { name: "Python", level: 74 },
-      { name: "Rust", level: 58 },
-      { name: "Go", level: 45 },
+      { name: "TypeScript", level: 90 },
+      { name: "JavaScript", level: 9 },
+      { name: "SQL", level: 70 },
+      { name: "Python", level: 60 }
     ],
   },
   {
     name: "Frontend",
     blurb: "Where I spend most of my day.",
     skills: [
-      { name: "React", level: 96 },
-      { name: "Next.js", level: 90 },
-      { name: "CSS architecture", level: 92 },
+      { name: "React", level: 90 },
+      { name: "Next.js", level: 980 },
+      { name: "CSS architecture", level: 85 },
       { name: "Canvas / WebGL", level: 70 },
       { name: "Accessibility", level: 84 },
       { name: "Motion design", level: 78 },
@@ -223,10 +221,9 @@ export const skillGroups: SkillGroup[] = [
     name: "Backend & data",
     blurb: "Enough to own a feature end to end.",
     skills: [
-      { name: "Node / Bun", level: 88 },
-      { name: "Postgres", level: 84 },
-      { name: "Redis", level: 76 },
-      { name: "API design", level: 87 },
+      { name: "Node / Bun", level: 70 },
+      { name: "Express.js", level: 70 },
+      { name: "API design", level: 75 },
       { name: "Event sourcing", level: 68 },
     ],
   },
@@ -247,46 +244,25 @@ export const skillGroups: SkillGroup[] = [
 
 export const experience: Job[] = [
   {
-    company: "Northwind Labs",
-    role: "Senior Frontend Engineer",
-    period: "2023 — Present",
-    location: "Bengaluru (hybrid)",
+    company: "National Institute of electronics and Information Technology, Bhubaneswar",
+    role: "Full-Stack Engineer Intern",
+    period: "2026.09.01 — Present",
+    location: "Bhubaneswar (on-site)",
     bullets: [
       "Own the design system used by 40 engineers across six product surfaces; cut component duplication by 70%.",
       "Led the migration off a five-year-old Webpack monolith to a Vite-based module setup, taking cold builds from 4m10s to 22s.",
       "Introduced render-budget tracking in CI, which caught three regressions before release in the first quarter.",
       "Mentor two mid-level engineers; run the internal frontend guild and its fortnightly teardown session.",
     ],
-  },
-  {
-    company: "Cobalt Pay",
-    role: "Full-Stack Engineer",
-    period: "2021 — 2023",
-    location: "Remote",
-    bullets: [
-      "Built the merchant onboarding flow end to end; drop-off fell from 41% to 18% over two quarters.",
-      "Designed the idempotency layer for the payouts API, eliminating a recurring class of duplicate-transfer incidents.",
-      "Ran the on-call rotation redesign that halved after-hours pages.",
-    ],
-  },
-  {
-    company: "Fernway Studio",
-    role: "Frontend Developer",
-    period: "2019 — 2021",
-    location: "Pune",
-    bullets: [
-      "Shipped twelve client applications across fintech, logistics and education.",
-      "Established the studio's accessibility baseline and its first automated audit pipeline.",
-    ],
-  },
+  }
 ];
 
 export const education = [
   {
-    school: "National Institute of Technology",
+    school: "Radhakrishna Institute of Technology & Engineering",
     degree: "B.Tech, Computer Science & Engineering",
-    period: "2015 — 2019",
-    note: "Graduated with distinction. Thesis on incremental layout algorithms.",
+    period: "2013 — 2017",
+    note: "7th Sem on-going",
   },
 ];
 
