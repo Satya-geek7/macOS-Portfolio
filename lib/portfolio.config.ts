@@ -80,10 +80,10 @@ export const profile = {
 
 /* ---------------------------------------------------------------- social --- */
 
-export const socials: (Link & { icon: "github" | "linkedin" | "mail" | "x" | "globe" })[] = [
+export const socials: (Link & { icon: "github" | "linkedin" | "Gmail" | "x" | "globe" })[] = [
   { label: "GitHub", href: "https://github.com/Satya-geek7", icon: "github" },
   { label: "LinkedIn", href: "https://linkedin.com/in/satyaprbehera", icon: "linkedin" },
-  { label: "Email", href: "mailto:the.satyabehera@gmail.com", icon: "mail" },
+  { label: "Email", href: "mailto:the.satyabehera@gmail.com", icon: "Gmail" },
   { label: "Website", href: "https://example.com", icon: "globe" },
 ];
 
@@ -98,7 +98,7 @@ export const projects: Project[] = [
     role: "Lead engineer",
     status: "In progress",
     accent: "#4f8cff",
-    stack: ["TypeScript", "React", "Yjs", "WebSockets", "Rust", "Postgres"],
+    stack: ["TypeScript", "React", "Next.js", "Express.js", "Postgres"],
     description:
       "Atlas is a multiplayer whiteboard built around conflict-free replicated data types, so two people editing the same shape on the same flaky train wifi converge on the same document instead of fighting each other. The rendering layer is a custom canvas scene graph rather than DOM nodes, which is what makes 20,000 shapes stay at 60fps.",
     highlights: [
@@ -200,7 +200,7 @@ export const skillGroups: SkillGroup[] = [
     blurb: "What I reach for, roughly in order of comfort.",
     skills: [
       { name: "TypeScript", level: 90 },
-      { name: "JavaScript", level: 9 },
+      { name: "JavaScript", level: 90 },
       { name: "SQL", level: 70 },
       { name: "Python", level: 60 }
     ],
